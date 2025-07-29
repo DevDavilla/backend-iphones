@@ -1,16 +1,12 @@
 // server.js
 
-// Importa o framework Express
 const express = require("express");
-// Importa o dotenv para carregar variáveis de ambiente
 require("dotenv").config();
+const pool = require("./config/db"); // Importa a conexão com o banco de dados
 
-// Cria uma instância do aplicativo Express
 const app = express();
-// Define a porta onde o servidor irá rodar, usando a variável de ambiente PORT ou 3000 como padrão
 const PORT = process.env.PORT || 3000;
 
-// Middleware para analisar corpos de requisição JSON
 app.use(express.json());
 
 // Rota de teste simples
@@ -18,7 +14,22 @@ app.get("/", (req, res) => {
   res.send("API de iPhones está rodando! 🚀");
 });
 
-// Inicia o servidor e o faz escutar na porta definida
+// Exemplo de rota para testar a conexão com o DB (opcional)
+app.get("/test-db", async (req, res) => {
+  try {
+    const result = await pool.query("SELECT NOW()");
+    res.status(200).json({
+      message: "Conexão com DB bem-sucedida!",
+      time: result.rows[0].now,
+    });
+  } catch (err) {
+    console.error(err);
+    res
+      .status(500)
+      .json({ message: "Erro na conexão com o DB", error: err.message });
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`Servidor rodando na porta ${PORT}`);
   console.log("Pressione Ctrl+C para parar");
