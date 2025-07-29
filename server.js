@@ -184,6 +184,131 @@ app.get("/api/iphones/:id", async (req, res) => {
 });
 // --- FIM DA NOVA ROTA ---
 
+// --- NOVA ROTA: Atualizar um iPhone (PUT /api/iphones/:id) ---
+app.put("/api/iphones/:id", async (req, res) => {
+  const { id } = req.params; // Extrai o ID da URL
+  const {
+    // Extrai os dados do corpo da requisição (o que vem do formulário de edição do frontend)
+    nome,
+    modelo,
+    armazenamento_gb,
+    cores_disponiveis,
+    condicao_aparelho,
+    preco_tabela,
+    preco_promocional,
+    opcoes_parcelamento,
+    estoque,
+    sku,
+    descricao_curta,
+    descricao_detalhada,
+    tamanho_tela_polegadas,
+    processador_chip,
+    capacidade_bateria,
+    tipo_conexao,
+    tipo_conector,
+    recursos_camera,
+    resistencia_agua_poeira,
+    sistema_operacional,
+    biometria,
+    imagens_urls,
+    video_url,
+    dimensoes_axlxc,
+    peso_g,
+    garantia_meses,
+    status_produto,
+  } = req.body;
+
+  try {
+    // Validação básica (garantir que o iPhone com o ID exista)
+    const checkIphone = await pool.query(
+      "SELECT id FROM iphones WHERE id = $1",
+      [id]
+    );
+    if (checkIphone.rows.length === 0) {
+      return res
+        .status(404)
+        .json({ message: "iPhone não encontrado para atualização." });
+    }
+
+    // A query SQL para atualizar um iPhone
+    const result = await pool.query(
+      `UPDATE iphones SET
+        nome = $1,
+        modelo = $2,
+        armazenamento_gb = $3,
+        cores_disponiveis = $4,
+        condicao_aparelho = $5,
+        preco_tabela = $6,
+        preco_promocional = $7,
+        opcoes_parcelamento = $8,
+        estoque = $9,
+        sku = $10,
+        descricao_curta = $11,
+        descricao_detalhada = $12,
+        tamanho_tela_polegadas = $13,
+        processador_chip = $14,
+        capacidade_bateria = $15,
+        tipo_conexao = $16,
+        tipo_conector = $17,
+        recursos_camera = $18,
+        resistencia_agua_poeira = $19,
+        sistema_operacional = $20,
+        biometria = $21,
+        imagens_urls = $22,
+        video_url = $23,
+        dimensoes_axlxc = $24,
+        peso_g = $25,
+        garantia_meses = $26,
+        status_produto = $27,
+        data_atualizacao = NOW()
+      WHERE id = $28
+      RETURNING *`, // RETURNING * retorna o registro atualizado
+      [
+        nome,
+        modelo,
+        armazenamento_gb,
+        cores_disponiveis,
+        condicao_aparelho,
+        preco_tabela,
+        preco_promocional,
+        opcoes_parcelamento,
+        estoque,
+        sku,
+        descricao_curta,
+        descricao_detalhada,
+        tamanho_tela_polegadas,
+        processador_chip,
+        capacidade_bateria,
+        tipo_conexao,
+        tipo_conector,
+        recursos_camera,
+        resistencia_agua_poeira,
+        sistema_operacional,
+        biometria,
+        imagens_urls,
+        video_url,
+        dimensoes_axlxc,
+        peso_g,
+        garantia_meses,
+        status_produto,
+        id, // O ID deve ser o último parâmetro para $28
+      ]
+    );
+
+    // Responde com o iPhone atualizado
+    res.status(200).json({
+      message: "iPhone atualizado com sucesso!",
+      iphone: result.rows[0],
+    });
+  } catch (err) {
+    console.error(`Erro ao atualizar iPhone com ID ${id}:`, err.stack);
+    res.status(500).json({
+      message: "Erro interno do servidor ao atualizar iPhone.",
+      error: err.message,
+    });
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`Servidor rodando na porta ${PORT}`);
   console.log("Pressione Ctrl+C para parar");
