@@ -30,9 +30,8 @@ app.get("/test-db", async (req, res) => {
   }
 });
 
-// --- NOVA ROTA: Cadastrar um novo iPhone (POST /api/iphones) ---
+// Rota para cadastrar um novo iPhone (POST /api/iphones)
 app.post("/api/iphones", async (req, res) => {
-  // Extrai os dados do corpo da requisição (o que vem do formulário do frontend)
   const {
     nome,
     modelo,
@@ -64,7 +63,6 @@ app.post("/api/iphones", async (req, res) => {
   } = req.body;
 
   try {
-    // Validação básica (você pode adicionar mais validações aqui)
     if (
       !nome ||
       !modelo ||
@@ -81,7 +79,6 @@ app.post("/api/iphones", async (req, res) => {
       });
     }
 
-    // A query SQL para inserir um novo iPhone
     const result = await pool.query(
       `INSERT INTO iphones (
         nome, modelo, armazenamento_gb, cores_disponiveis, condicao_aparelho,
@@ -92,7 +89,7 @@ app.post("/api/iphones", async (req, res) => {
         biometria, imagens_urls, video_url, dimensoes_axlxc, peso_g,
         garantia_meses, status_produto
       ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27)
-      RETURNING *`, // RETURNING * retorna o registro inserido
+      RETURNING *`,
       [
         nome,
         modelo,
@@ -124,7 +121,6 @@ app.post("/api/iphones", async (req, res) => {
       ]
     );
 
-    // Responde com o iPhone recém-criado
     res.status(201).json({
       message: "iPhone cadastrado com sucesso!",
       iphone: result.rows[0],
@@ -133,6 +129,55 @@ app.post("/api/iphones", async (req, res) => {
     console.error("Erro ao cadastrar iPhone:", err.stack);
     res.status(500).json({
       message: "Erro interno do servidor ao cadastrar iPhone.",
+      error: err.message,
+    });
+  }
+});
+
+// Rota para listar todos os iPhones (GET /api/iphones)
+app.get("/api/iphones", async (req, res) => {
+  try {
+    const result = await pool.query(
+      "SELECT * FROM iphones ORDER BY data_criacao DESC"
+    );
+
+    res.status(200).json({
+      message: "iPhones listados com sucesso!",
+      iphones: result.rows,
+    });
+  } catch (err) {
+    console.error("Erro ao listar iPhones:", err.stack);
+    res.status(500).json({
+      message: "Erro interno do servidor ao listar iPhones.",
+      error: err.message,
+    });
+  }
+});
+
+// --- NOVA ROTA: Obter um iPhone por ID (GET /api/iphones/:id) ---
+app.get("/api/iphones/:id", async (req, res) => {
+  const { id } = req.params; // Extrai o ID da URL
+
+  try {
+    // Query SQL para selecionar um iPhone pelo ID
+    const result = await pool.query("SELECT * FROM iphones WHERE id = $1", [
+      id,
+    ]);
+
+    // Verifica se o iPhone foi encontrado
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: "iPhone não encontrado." });
+    }
+
+    // Responde com o iPhone encontrado
+    res.status(200).json({
+      message: "iPhone encontrado com sucesso!",
+      iphone: result.rows[0],
+    });
+  } catch (err) {
+    console.error(`Erro ao obter iPhone com ID ${id}:`, err.stack);
+    res.status(500).json({
+      message: "Erro interno do servidor ao obter iPhone.",
       error: err.message,
     });
   }
