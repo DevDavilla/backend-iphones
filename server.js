@@ -2,12 +2,14 @@
 
 const express = require("express");
 require("dotenv").config();
-const pool = require("./config/db"); // Importa a conexão com o banco de dados
+const pool = require("./config/db");
+const cors = require("cors");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-app.use(express.json()); // Middleware para analisar corpos de requisição JSON
+app.use(express.json());
+app.use(cors()); // Middleware para analisar corpos de requisição JSON
 
 // Rota de teste simples
 app.get("/", (req, res) => {
