@@ -2,7 +2,7 @@
 
 const express = require("express");
 require("dotenv").config(); // Carrega as variáveis de ambiente do arquivo .env
-const pool = require("../config/db"); // Importa a conexão com o banco de dados PostgreSQL
+const pool = require("./config/db"); // Importa a conexão com o banco de dados PostgreSQL
 const cors = require("cors"); // Importa o pacote CORS para permitir requisições de outras origens
 
 // Cria uma instância do aplicativo Express
