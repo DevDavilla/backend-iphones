@@ -3,12 +3,17 @@
 const { Pool } = require("pg");
 require("dotenv").config(); // Carrega as variáveis de ambiente
 
+// Configuração do pool de conexão com o banco de dados
 const pool = new Pool({
   user: process.env.DB_USER,
   host: process.env.DB_HOST,
   database: process.env.DB_DATABASE,
   password: process.env.DB_PASSWORD,
   port: process.env.DB_PORT,
+  ssl: {
+    // Configura a conexão para usar SSL, exigido pelo Neon
+    rejectUnauthorized: false,
+  },
 });
 
 // Teste de conexão (opcional, mas recomendado)
