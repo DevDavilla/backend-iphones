@@ -14,7 +14,10 @@ const PORT = process.env.PORT || 3000; // Definido como 3001 no .env para evitar
 app.use(express.json());
 // Habilita o CORS para todas as rotas (para desenvolvimento).
 // Em produção, você pode querer configurar mais restritivamente (ex: app.use(cors({ origin: 'http://seu-dominio.com' })));
-app.use(cors());
+const corsOptions = {
+  origin: "https://iphones-frontend1.vercel.app",
+};
+app.use(cors(corsOptions));
 
 // Rota de teste simples para verificar se a API está online
 app.get("/", (req, res) => {
@@ -477,12 +480,10 @@ app.delete("/api/orders/:id", async (req, res) => {
     if (result.rowCount === 0)
       return res.status(404).json({ message: "Pedido não encontrado" });
 
-    res
-      .status(200)
-      .json({
-        message: "Pedido deletado com sucesso!",
-        deletedId: result.rows[0].id,
-      });
+    res.status(200).json({
+      message: "Pedido deletado com sucesso!",
+      deletedId: result.rows[0].id,
+    });
   } catch (err) {
     console.error("Erro ao deletar pedido:", err.stack);
     res
